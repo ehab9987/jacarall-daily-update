@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>JACARALL Daily Update</title>
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#f6f5f1; --card:#ffffff; --text:#1c1b18; --muted:#6b6960; --line:#e4e1d8;
+  --brand:#800020; --brand-text:#ffffff; --accent:#800020; --input:#fbfaf7;
+  --done:#1b7f4b; --done-bg:#e3f4ea;
+  --part:#946000; --part-bg:#fdf0d5;
+  --not:#b3261e; --not-bg:#fbe4e2;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141412; --card:#1e1e1b; --text:#f0eee8; --muted:#a19e94; --line:#33322d;
+    --brand:#800020; --brand-text:#ffffff; --accent:#f0eee8; --input:#181816;
+    --done:#66d19a; --done-bg:#173225;
+    --part:#f0c264; --part-bg:#382c12;
+    --not:#ff8f86; --not-bg:#3a1c1a;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141412; --card:#1e1e1b; --text:#f0eee8; --muted:#a19e94; --line:#33322d;
+  --brand:#800020; --brand-text:#ffffff; --accent:#f0eee8; --input:#181816;
+  --done:#66d19a; --done-bg:#173225;
+  --part:#f0c264; --part-bg:#382c12;
+  --not:#ff8f86; --not-bg:#3a1c1a;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  line-height:1.5;font-size:16px;-webkit-text-size-adjust:100%;}
+.wrap{max-width:820px;margin:0 auto;padding:14px 14px 96px;}
+header{margin:4px 0 12px;}
+header h1{font-size:20px;margin:0;color:var(--accent);}
+header small{color:var(--muted);font-size:13px;}
+h2{font-size:17px;margin:0 0 10px;}
+h3{font-size:15px;margin:18px 0 8px;color:var(--accent);}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;gap:4px;background:var(--card);
+  border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));}
+.nav button{flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-size:12.5px;font-weight:600;
+  padding:8px 2px;border-radius:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.nav button span.i{font-size:18px;line-height:1;}
+.nav button[aria-selected="true"]{background:var(--brand);color:var(--brand-text);}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px;}
+label{display:block;font-weight:600;font-size:14px;margin:0 0 6px;}
+.field{margin-bottom:14px;}
+.hint{color:var(--muted);font-size:12.5px;font-weight:400;}
+input[type=text],input[type=date],select,textarea{
+  width:100%;font:inherit;font-size:16px;color:var(--text);background:var(--input);
+  border:1px solid var(--line);border-radius:10px;padding:10px 12px;}
+textarea{min-height:84px;resize:vertical;}
+textarea.preview{min-height:150px;font-size:13.5px;color:var(--muted);}
+textarea.paste{min-height:170px;font-size:14px;}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:1px;}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.seg input{position:absolute;opacity:0;pointer-events:none;}
+.seg label{margin:0;text-align:center;border:1px solid var(--line);border-radius:10px;padding:10px 4px;cursor:pointer;background:var(--input);font-size:13.5px;}
+.seg input:checked + label.l-done{background:var(--done-bg);border-color:var(--done);color:var(--done);}
+.seg input:checked + label.l-partial{background:var(--part-bg);border-color:var(--part);color:var(--part);}
+.seg input:checked + label.l-not{background:var(--not-bg);border-color:var(--not);color:var(--not);}
+.seg input:focus-visible + label{outline:2px solid var(--accent);outline-offset:1px;}
+.btn{font:inherit;font-weight:700;border:0;border-radius:11px;padding:12px 16px;cursor:pointer;background:var(--brand);color:var(--brand-text);display:inline-block;text-decoration:none;text-align:center;}
+.btn.wa{background:#1f8f4e;color:#ffffff;}
+.btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line);font-weight:600;}
+.btn.small{padding:6px 10px;font-size:13px;border-radius:8px;}
+.btn.danger{color:var(--not);border-color:var(--not);}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.between{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;}
+.msg{padding:10px 12px;border-radius:10px;font-size:14px;margin-bottom:12px;}
+.msg.ok{background:var(--done-bg);color:var(--done);}
+.msg.err{background:var(--not-bg);color:var(--not);}
+.msg.info{background:var(--part-bg);color:var(--part);}
+.hidden{display:none !important;}
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.filters .full{grid-column:1 / -1;}
+.upd .meta{color:var(--muted);font-size:13px;}
+.upd .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px;}
+.upd h3{margin:0;font-size:17px;color:var(--text);}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12.5px;font-weight:700;white-space:nowrap;}
+.pill.done{background:var(--done-bg);color:var(--done);}
+.pill.partial{background:var(--part-bg);color:var(--part);}
+.pill.not{background:var(--not-bg);color:var(--not);}
+.pill.neutral{background:var(--input);color:var(--muted);border:1px solid var(--line);}
+.blk{margin-top:8px;}
+.blk b{font-size:12.5px;color:var(--muted);display:block;font-weight:600;}
+.blk p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;}
+.why{background:var(--not-bg);border-radius:10px;padding:8px 10px;}
+.why b{color:var(--not);}
+.help{background:var(--part-bg);border-radius:10px;padding:8px 10px;}
+.help b{color:var(--part);}
+.empty{text-align:center;color:var(--muted);padding:22px 8px;}
+.actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0;}
+.tblwrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:12px;}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px;}
+th,td{padding:8px 10px;text-align:center;border-bottom:1px solid var(--line);white-space:nowrap;}
+th{background:var(--brand);color:var(--brand-text);font-weight:600;font-size:12.5px;}
+td:first-child,th:first-child{text-align:left;}
+tr:last-child td{border-bottom:0;}
+td.bad{background:var(--not-bg);color:var(--not);font-weight:700;}
+td.warn{background:var(--part-bg);color:var(--part);font-weight:700;}
+td.good{background:var(--done-bg);color:var(--done);font-weight:700;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>JACARALL Daily Update</h1>
+    <small>No account needed. Fill in your update and send it on WhatsApp.</small>
+  </header>
+  <div id="banner"></div>
+  <datalist id="projects-dl"></datalist>
+  <div id="app"></div>
+</div>
+<nav class="nav" id="nav"></nav>
+
+<script>
+(function(){
+  'use strict';
+
+  var STATUS = {
+    done:{label:'Completed', cls:'done', rank:2},
+    partial:{label:'Partially Completed', cls:'partial', rank:1},
+    not:{label:'Not Completed', cls:'not', rank:0}
+  };
+  var TEAMS = {
+    site:{
+      key:'site', title:'Site Engineers', short:'Site', areaKey:'Area', areaLabel:'Site / Area', areaPlaceholder:'e.g. Villa 12 - Ground Floor',
+      reasons:['Materials shortage / delivery delay','Labor or subcontractor delay','Client change or request','Design or measurement issue','Waiting for approval or payment','Site conditions / access','Other']
+    },
+    tech:{
+      key:'tech', title:'Tech Department', short:'Tech', areaKey:'Task Type', areaLabel:'Task Type',
+      areaOptions:['Design / Drawings','Shop Drawings','BOQ / Quantities','3D Rendering','MEP Coordination','Site Support','Client Coordination','Other'],
+      reasons:['Waiting for client input or approval','Missing information or drawings','Design change','Software or technical issue','Waiting on another department','Priority or workload change','Other']
+    }
+  };
+  var TASK_STATUSES = ['Not Started','In Progress','Blocked','Done'];
+  var PRIORITIES = ['High','Medium','Low'];
+
+  // ---------- helpers ----------
+  function h(tag, attrs){
+    var e = document.createElement(tag);
+    attrs = attrs || {};
+    var late = null;
+    Object.keys(attrs).forEach(function(k){
+      var v = attrs[k];
+      if(k === 'class') e.className = v;
+      else if(k === 'value') late = v;
+      else if(k === 'checked' || k === 'disabled') e[k] = !!v;
+      else if(k.indexOf('on') === 0) e.addEventListener(k.slice(2), v);
+      else if(v === true) e.setAttribute(k, '');
+      else if(v !== false && v != null) e.setAttribute(k, v);
+    });
+    for(var i = 2; i < arguments.length; i++){
+      [].concat(arguments[i]).forEach(function(c){
+        if(c == null || c === false) return;
+        e.append(c.nodeType ? c : document.createTextNode(String(c)));
+      });
+    }
+    if(late != null) e.value = late;
+    return e;
+  }
+  var memStore = {};
+  function lsGet(k){ try { var v = localStorage.getItem(k); return v == null ? (memStore[k] || null) : v; } catch(e){ return memStore[k] || null; } }
+  function lsSet(k,v){ memStore[k] = v; try { localStorage.setItem(k,v); } catch(e){} }
+  function loadJSON(k, d){ try { var v = lsGet(k); return v ? JSON.parse(v) : d; } catch(e){ return d; } }
+  function saveJSON(k, v){ lsSet(k, JSON.stringify(v)); }
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function fmt(d){ return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
+  function todayStr(o){ var d = new Date(); d.setDate(d.getDate() + (o || 0)); return fmt(d); }
+  function addDays(s, n){ var d = new Date(s + 'T12:00:00'); d.setDate(d.getDate() + n); return fmt(d); }
+  function niceDate(s){
+    try{ return new Date(s + 'T12:00:00').toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short', year:'numeric'}); }catch(e){ return s; }
+  }
+  function uniq(a){ var o = {}, r = []; a.forEach(function(x){ if(x && !o[x]){ o[x] = 1; r.push(x); } }); return r; }
+  function one(s){ return String(s || '').replace(/\s*[\r\n]+\s*/g, ' | ').trim(); }
+  function banner(text, kind){
+    var b = document.getElementById('banner');
+    b.textContent = '';
+    if(!text) return;
+    var el = h('div', {class:'msg ' + (kind || 'ok')}, text);
+    b.append(el);
+    if(kind !== 'err') setTimeout(function(){ if(el.parentNode === b) b.textContent = ''; }, 6000);
+  }
+  function fallbackCopy(text){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.append(ta); ta.focus(); ta.select();
+    var ok = false;
+    try{ ok = document.execCommand('copy'); }catch(e){}
+    ta.remove();
+    return ok;
+  }
+  function copyText(text){
+    try{
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        return navigator.clipboard.writeText(text).then(function(){ return true; }, function(){ return fallbackCopy(text); });
+      }
+    }catch(e){}
+    return Promise.resolve(fallbackCopy(text));
+  }
+  function waUrl(msg){ return 'https://wa.me/?text=' + encodeURIComponent(msg); }
+
+  var records = loadJSON('jd_records', []);
+  var tasks = loadJSON('jd_tasks', []);
+  var recentProjects = loadJSON('jd_projects', []);
+  function allProjects(){
+    var p = recentProjects.slice();
+    records.forEach(function(r){ p.push(r.project); });
+    tasks.forEach(function(t){ p.push(t.project); });
+    return uniq(p).sort(function(a,b){ return a.localeCompare(b); });
+  }
+  function syncProjectList(){
+    var dl = document.getElementById('projects-dl'); dl.textContent = '';
+    allProjects().forEach(function(n){ dl.append(h('option', {value:n})); });
+  }
+  function rememberProject(p){
+    if(!p) return;
+    recentProjects = uniq([p].concat(recentProjects)).slice(0, 40);
+    saveJSON('jd_projects', recentProjects);
+    syncProjectList();
+  }
+
+  // ---------- update form (Site / Tech) ----------
+  function buildUpdateMessage(cfg, d){
+    var L = ['*JACARALL DAILY UPDATE*',
+      'Team: ' + cfg.title,
+      'Date: ' + d.date,
+      'Name: ' + one(d.name),
+      'Project: ' + one(d.project)];
+    if(d.area) L.push(cfg.areaKey + ': ' + one(d.area));
+    L.push('Yesterday: ' + one(d.yesterday));
+    L.push('Finished: ' + (d.status ? STATUS[d.status].label : ''));
+    if(d.reason) L.push('Reason: ' + one(d.reason));
+    if(d.reasonDetail) L.push('Details: ' + one(d.reasonDetail));
+    L.push('Today: ' + one(d.today));
+    if(d.blockers) L.push('Blockers: ' + one(d.blockers));
+    return L.join('\n');
+  }
+
+  function TeamForm(cfg){
+    var key = cfg.key;
+    var root = h('div', {class:'hidden'});
+    var f = {};
+    f.date = h('input', {type:'date', value:todayStr(0)});
+    f.name = h('input', {type:'text', placeholder:'Your name', autocomplete:'name', value:lsGet('jd_name') || ''});
+    f.project = h('input', {type:'text', list:'projects-dl', placeholder:'Type or pick a project'});
+    f.area = cfg.areaOptions
+      ? h('select', {}, h('option', {value:''}, 'Select...'), cfg.areaOptions.map(function(o){ return h('option', {value:o}, o); }))
+      : h('input', {type:'text', placeholder:cfg.areaPlaceholder});
+    f.yesterday = h('textarea', {placeholder:'What was done yesterday?'});
+    f.reason = h('select', {}, cfg.reasons.map(function(o){ return h('option', {value:o}, o); }));
+    f.reasonDetail = h('textarea', {placeholder:'Details (optional but helpful)'});
+    f.today = h('textarea', {placeholder:'Plan for today'});
+    f.blockers = h('textarea', {placeholder:'Materials, decisions, payments, help from another team...'});
+
+    var radios = {};
+    var seg = h('div', {class:'seg', role:'radiogroup'});
+    [['done','l-done','Completed'],['partial','l-partial','Partial'],['not','l-not','Not Completed']].forEach(function(s){
+      var id = key + '-st-' + s[0];
+      var r = h('input', {type:'radio', name:key + '-status', id:id, value:s[0]});
+      r.addEventListener('change', function(){ syncReason(); refresh(); });
+      radios[s[0]] = r;
+      seg.append(r, h('label', {class:s[1], for:id}, s[2]));
+    });
+    var reasonWrap = h('div', {class:'hidden'},
+      h('div', {class:'field'}, h('label', {}, 'Why was it not completed?'), f.reason),
+      h('div', {class:'field'}, h('label', {}, 'Details ', h('span', {class:'hint'}, '(optional)')), f.reasonDetail)
+    );
+    function currentStatus(){ for(var k in radios) if(radios[k].checked) return k; return null; }
+    function syncReason(){
+      var s = currentStatus();
+      reasonWrap.classList.toggle('hidden', !(s === 'partial' || s === 'not'));
+    }
+    function collect(){
+      var s = currentStatus();
+      return {date:f.date.value, name:f.name.value.trim(), project:f.project.value.trim(), area:f.area.value.trim(),
+        yesterday:f.yesterday.value.trim(), status:s, reason:(s && s !== 'done') ? f.reason.value : '',
+        reasonDetail:(s && s !== 'done') ? f.reasonDetail.value.trim() : '', today:f.today.value.trim(), blockers:f.blockers.value.trim()};
+    }
+    function validate(d){
+      if(!d.name) return 'Enter your name.';
+      if(!d.project) return 'Enter the project.';
+      if(!d.date) return 'Pick the date.';
+      if(!d.yesterday) return 'Write what you did yesterday.';
+      if(!d.status) return 'Choose whether the work was finished.';
+      if(d.status !== 'done' && !d.reason) return 'Choose a reason.';
+      if(!d.today) return 'Write your plan for today.';
+      return '';
+    }
+
+    var preview = h('textarea', {class:'preview', readonly:true, placeholder:'Your message will appear here as you fill in the form.'});
+    var sendA = h('a', {class:'btn wa', href:'#', target:'_blank', rel:'noopener'}, 'Send on WhatsApp');
+    var copyBtn = h('button', {class:'btn ghost'}, 'Copy message');
+    function refresh(){ preview.value = buildUpdateMessage(cfg, collect()); }
+
+    function afterSend(){
+      lsSet('jd_name', f.name.value.trim());
+      rememberProject(f.project.value.trim());
+      setTimeout(function(){
+        f.project.value = ''; f.area.value = ''; f.yesterday.value = ''; f.today.value = '';
+        f.blockers.value = ''; f.reasonDetail.value = ''; f.reason.selectedIndex = 0; f.date.value = todayStr(0);
+        for(var k in radios) radios[k].checked = false;
+        syncReason(); preview.value = '';
+        window.scrollTo(0, 0);
+      }, 1500);
+    }
+    sendA.addEventListener('click', function(e){
+      var d = collect(), err = validate(d);
+      if(err){ e.preventDefault(); banner(err, 'err'); window.scrollTo(0, 0); return; }
+      sendA.href = waUrl(buildUpdateMessage(cfg, d));
+      banner('Opening WhatsApp. Choose the group, then press send. If it does not open, tap "Copy message" and paste it in the group.', 'ok');
+      afterSend();
+    });
+    copyBtn.addEventListener('click', function(){
+      var d = collect(), err = validate(d);
+      if(err){ banner(err, 'err'); window.scrollTo(0, 0); return; }
+      var msg = buildUpdateMessage(cfg, d);
+      preview.value = msg;
+      copyText(msg).then(function(ok){
+        banner(ok ? 'Message copied. Now paste it in the WhatsApp group.' : 'Could not copy automatically. Press and hold the message box below, select all, and copy.', ok ? 'ok' : 'info');
+        if(ok) afterSend();
+      });
+    });
+    [f.date, f.name, f.project, f.area, f.yesterday, f.reason, f.reasonDetail, f.today, f.blockers].forEach(function(el){
+      el.addEventListener('input', refresh); el.addEventListener('change', refresh);
+    });
+
+    root.append(
+      h('h2', {}, cfg.title + ' - daily update'),
+      h('div', {class:'card'},
+        h('div', {class:'field'}, h('label', {}, 'Date'), f.date),
+        h('div', {class:'field'}, h('label', {}, 'Your name'), f.name),
+        h('div', {class:'field'}, h('label', {}, 'Project'), f.project),
+        h('div', {class:'field'}, h('label', {}, cfg.areaLabel), f.area),
+        h('div', {class:'field'}, h('label', {}, 'What did you do yesterday?'), f.yesterday),
+        h('div', {class:'field'}, h('label', {}, 'Did you finish it?'), seg),
+        reasonWrap,
+        h('div', {class:'field'}, h('label', {}, 'What will you do today?'), f.today),
+        h('div', {class:'field'}, h('label', {}, 'Blockers / help needed ', h('span', {class:'hint'}, '(optional)')), f.blockers),
+        h('div', {class:'field'}, h('label', {}, 'Message preview'), preview),
+        h('div', {class:'row'}, sendA, copyBtn)
+      )
+    );
+    syncReason();
+    return {el:root, render:function(){ refresh(); }};
+  }
+
+  // ---------- tasks (management) ----------
+  function TasksView(){
+    var root = h('div', {class:'hidden'});
+    var f = {};
+    f.who = h('input', {type:'text', placeholder:'Engineer name'});
+    f.team = h('select', {}, h('option', {value:'site'}, 'Site Engineers'), h('option', {value:'tech'}, 'Tech Department'));
+    f.project = h('input', {type:'text', list:'projects-dl', placeholder:'Type or pick a project'});
+    f.task = h('textarea', {placeholder:'What needs to be done?'});
+    f.priority = h('select', {}, PRIORITIES.map(function(p){ return h('option', {value:p}, p); }));
+    f.priority.value = 'Medium';
+    f.due = h('input', {type:'date'});
+
+    function collect(){
+      return {assignedTo:f.who.value.trim(), team:f.team.value, project:f.project.value.trim(), task:f.task.value.trim(),
+        priority:f.priority.value, due:f.due.value || ''};
+    }
+    function msgOf(d){
+      var L = ['*JACARALL TASK*', 'To: ' + one(d.assignedTo), 'Team: ' + TEAMS[d.team].title];
+      if(d.project) L.push('Project: ' + one(d.project));
+      L.push('Task: ' + one(d.task), 'Priority: ' + d.priority);
+      if(d.due) L.push('Due: ' + d.due);
+      return L.join('\n');
+    }
+    function validate(d){
+      if(!d.assignedTo) return 'Enter who the task is for.';
+      if(!d.task) return 'Write the task.';
+      return '';
+    }
+    function save(d){
+      tasks.unshift({id:'t' + Date.now() + Math.random().toString(36).slice(2, 6), assignedTo:d.assignedTo, team:d.team, project:d.project,
+        task:d.task, priority:d.priority, due:d.due, status:'Not Started', dateAssigned:todayStr(0)});
+      saveJSON('jd_tasks', tasks);
+      rememberProject(d.project);
+      f.who.value = ''; f.project.value = ''; f.task.value = ''; f.due.value = ''; f.priority.value = 'Medium';
+      render();
+    }
+    var sendA = h('a', {class:'btn wa', href:'#', target:'_blank', rel:'noopener'}, 'Send on WhatsApp');
+    var copyBtn = h('button', {class:'btn ghost'}, 'Copy message');
+    sendA.addEventListener('click', function(e){
+      var d = collect(), err = validate(d);
+      if(err){ e.preventDefault(); banner(err, 'err'); return; }
+      sendA.href = waUrl(msgOf(d));
+      banner('Opening WhatsApp. Choose the chat, then press send. The task was saved in your list below.', 'ok');
+      save(d);
+    });
+    copyBtn.addEventListener('click', function(){
+      var d = collect(), err = validate(d);
+      if(err){ banner(err, 'err'); return; }
+      var m = msgOf(d);
+      copyText(m).then(function(ok){
+        banner(ok ? 'Task copied and saved. Paste it in WhatsApp.' : 'Task saved, but could not copy automatically.', ok ? 'ok' : 'info');
+        save(d);
+      });
+    });
+
+    var filter = 'open';
+    var fsel = h('select', {}, h('option', {value:'open'}, 'Open tasks'), h('option', {value:'all'}, 'All tasks'),
+      TASK_STATUSES.map(function(s){ return h('option', {value:s}, s); }));
+    fsel.addEventListener('change', function(){ filter = fsel.value; renderList(); });
+    var listEl = h('div');
+
+    root.append(
+      h('h2', {}, 'Assign a task'),
+      h('div', {class:'card'},
+        h('div', {class:'field'}, h('label', {}, 'Assign to'), f.who),
+        h('div', {class:'field'}, h('label', {}, 'Team'), f.team),
+        h('div', {class:'field'}, h('label', {}, 'Project'), f.project),
+        h('div', {class:'field'}, h('label', {}, 'Task'), f.task),
+        h('div', {class:'field'}, h('label', {}, 'Priority'), f.priority),
+        h('div', {class:'field'}, h('label', {}, 'Due date ', h('span', {class:'hint'}, '(optional)')), f.due),
+        h('div', {class:'row'}, sendA, copyBtn)
+      ),
+      h('h2', {}, 'My task list'),
+      h('p', {class:'hint', style:'margin:-4px 0 10px'}, 'Saved on this device only. Update the status here when the engineer tells you it moved.'),
+      h('div', {class:'field'}, fsel),
+      listEl
+    );
+
+    function renderList(){
+      var rows = tasks.filter(function(t){
+        if(filter === 'open') return t.status !== 'Done';
+        if(filter === 'all') return true;
+        return t.status === filter;
+      });
+      var pr = {High:0, Medium:1, Low:2};
+      rows.sort(function(a, b){
+        var da = a.status === 'Done' ? 1 : 0, dbb = b.status === 'Done' ? 1 : 0;
+        if(da !== dbb) return da - dbb;
+        var pa = pr[a.priority] != null ? pr[a.priority] : 1, pb = pr[b.priority] != null ? pr[b.priority] : 1;
+        if(pa !== pb) return pa - pb;
+        var ua = a.due || '9999', ub = b.due || '9999';
+        return ua < ub ? -1 : ua > ub ? 1 : 0;
+      });
+      listEl.textContent = '';
+      if(!rows.length){ listEl.append(h('div', {class:'empty'}, 'No tasks here.')); return; }
+      rows.forEach(function(t){
+        var overdue = t.due && t.status !== 'Done' && t.due < todayStr(0);
+        var sel = h('select', {}, TASK_STATUSES.map(function(s){ return h('option', {value:s}, s); }));
+        sel.value = t.status;
+        sel.addEventListener('change', function(){ t.status = sel.value; saveJSON('jd_tasks', tasks); renderList(); });
+        var del = h('button', {class:'btn ghost small danger'}, 'Delete');
+        var armed = false;
+        del.addEventListener('click', function(){
+          if(!armed){ armed = true; del.textContent = 'Tap again to confirm'; setTimeout(function(){ armed = false; del.textContent = 'Delete'; }, 3500); return; }
+          tasks = tasks.filter(function(x){ return x.id !== t.id; }); saveJSON('jd_tasks', tasks); renderList();
+        });
+        listEl.append(h('div', {class:'card upd'},
+          h('div', {class:'top'},
+            h('div', {}, h('h3', {}, t.task), h('div', {class:'meta'}, t.assignedTo + ' • ' + TEAMS[t.team].short + (t.project ? ' • ' + t.project : ''))),
+            h('span', {class:'pill ' + (t.status === 'Done' ? 'done' : t.status === 'Blocked' ? 'not' : t.status === 'In Progress' ? 'partial' : 'neutral')}, t.status)
+          ),
+          h('div', {class:'chips'},
+            h('span', {class:'pill ' + (t.priority === 'High' ? 'not' : t.priority === 'Medium' ? 'partial' : 'neutral')}, t.priority + ' priority'),
+            t.due ? h('span', {class:'pill ' + (overdue ? 'not' : 'neutral')}, (overdue ? 'Overdue • ' : 'Due ') + niceDate(t.due)) : null
+          ),
+          h('div', {class:'field', style:'margin:10px 0 0'}, sel),
+          h('div', {class:'actions'}, del)
+        ));
+      });
+    }
+    function render(){ renderList(); }
+    return {el:root, render:render};
+  }
+
+  // ---------- dashboard (management) ----------
+  function parseMessages(text){
+    var keys = 'Team|Date|Name|Project|Area|Task Type|Yesterday|Finished|Reason|Details|Today|Blockers';
+    var keyRe = new RegExp('^\\s*(' + keys + ')\\s*:\\s*(.*)$', 'i');
+    var out = [], cur = null;
+    String(text || '').split(/\r?\n/).forEach(function(raw){
+      var line = raw.replace(/[*_~]/g, '');
+      if(/JACARALL DAILY UPDATE/i.test(line)){ if(cur) out.push(cur); cur = {}; return; }
+      if(/JACARALL TASK/i.test(line)){ if(cur) out.push(cur); cur = null; return; }
+      if(!cur) return;
+      var m = line.match(keyRe);
+      if(m) cur[m[1].toLowerCase().replace(/\s+/g, '')] = m[2].trim();
+    });
+    if(cur) out.push(cur);
+    var recs = [];
+    out.forEach(function(o){
+      if(!o.project && !o.yesterday) return;
+      var fin = (o.finished || '').toLowerCase();
+      var status = /not/.test(fin) ? 'not' : /partial/.test(fin) ? 'partial' : 'done';
+      var date = /^\d{4}-\d{2}-\d{2}$/.test(o.date || '') ? o.date : todayStr(0);
+      recs.push({team:/tech/i.test(o.team || '') ? 'tech' : 'site', date:date, name:o.name || '', project:o.project || '',
+        area:o.area || o.tasktype || '', yesterday:o.yesterday || '', status:status, reason:o.reason || '',
+        reasonDetail:o.details || '', today:o.today || '', blockers:o.blockers || ''});
+    });
+    return recs;
+  }
+  function recKey(r){ return [r.team, r.date, r.name, r.project, r.yesterday, r.today].join('|').toLowerCase(); }
+
+  function DashboardView(){
+    var root = h('div', {class:'hidden'});
+    var date = todayStr(0);
+    var dateIn = h('input', {type:'date', value:date});
+    dateIn.addEventListener('change', function(){ if(dateIn.value){ date = dateIn.value; render(); } });
+    var todayBtn = h('button', {class:'btn ghost small'}, 'Today');
+    todayBtn.addEventListener('click', function(){ date = todayStr(0); dateIn.value = date; render(); });
+    var paste = h('textarea', {class:'paste', placeholder:'Paste the WhatsApp messages here (you can paste many at once)...'});
+    var addBtn = h('button', {class:'btn'}, 'Add to dashboard');
+    var result = h('div');
+    addBtn.addEventListener('click', function(){
+      var found = parseMessages(paste.value);
+      if(!found.length){ banner('No updates found in that text. Paste messages that start with "JACARALL DAILY UPDATE".', 'err'); return; }
+      var have = {}; records.forEach(function(r){ have[recKey(r)] = 1; });
+      var added = 0;
+      found.forEach(function(r){ var k = recKey(r); if(!have[k]){ have[k] = 1; records.push(r); added++; } });
+      saveJSON('jd_records', records);
+      paste.value = '';
+      syncProjectList();
+      banner('Added ' + added + ' new update' + (added === 1 ? '' : 's') + (found.length - added ? ' (' + (found.length - added) + ' already there)' : '') + '.', 'ok');
+      render();
+    });
+    var body = h('div');
+    var clearBtn = h('button', {class:'btn ghost small danger'}, 'Clear all dashboard data');
+    var armed = false;
+    clearBtn.addEventListener('click', function(){
+      if(!armed){ armed = true; clearBtn.textContent = 'Tap again to confirm'; setTimeout(function(){ armed = false; clearBtn.textContent = 'Clear all dashboard data'; }, 3500); return; }
+      records = []; saveJSON('jd_records', []); render();
+    });
+
+    root.append(
+      h('h2', {}, 'Dashboard'),
+      h('div', {class:'msg info'}, 'For management. Copy the engineers\' WhatsApp messages, paste them below, and the dashboard builds itself. Data is saved on this device only.'),
+      h('div', {class:'card'}, h('div', {class:'field'}, h('label', {}, 'Paste WhatsApp messages'), paste), addBtn),
+      h('div', {class:'filters'},
+        h('div', {}, h('label', {}, 'Date'), dateIn),
+        h('div', {style:'align-self:end'}, todayBtn)
+      ),
+      body,
+      h('div', {style:'margin-top:12px'}, clearBtn)
+    );
+
+    function table(headers, rows, cls){
+      var t = h('table', {}, h('thead', {}, h('tr', {}, headers.map(function(x){ return h('th', {}, x); }))));
+      var tb = h('tbody');
+      rows.forEach(function(r){
+        tb.append(h('tr', {}, r.map(function(cell, i){
+          var c = cls ? (cls(i, cell, r) || '') : '';
+          return h('td', c ? {class:c} : {}, String(cell));
+        })));
+      });
+      t.append(tb);
+      return h('div', {class:'tblwrap'}, t);
+    }
+    function forTeam(team, d, p){ return records.filter(function(u){ return u.team === team && u.date === d && (!p || u.project === p); }); }
+    function cnt(a, s){ return a.filter(function(u){ return u.status === s; }).length; }
+    function blk(a){ return a.filter(function(u){ return u.blockers; }).length; }
+
+    function updateCard(u){
+      var s = STATUS[u.status];
+      return h('div', {class:'card upd'},
+        h('div', {class:'top'},
+          h('div', {}, h('h3', {}, u.project || '(no project)'),
+            h('div', {class:'meta'}, TEAMS[u.team].short + ' • ' + u.name + (u.area ? ' • ' + u.area : ''))),
+          h('span', {class:'pill ' + s.cls}, s.label)
+        ),
+        h('div', {class:'blk'}, h('b', {}, 'Done yesterday'), h('p', {}, u.yesterday)),
+        (u.status !== 'done' && u.reason) ? h('div', {class:'blk why'}, h('b', {}, 'Why not completed: ' + u.reason), u.reasonDetail ? h('p', {}, u.reasonDetail) : null) : null,
+        u.today ? h('div', {class:'blk'}, h('b', {}, 'Plan for today'), h('p', {}, u.today)) : null,
+        u.blockers ? h('div', {class:'blk help'}, h('b', {}, 'Blockers / help needed'), h('p', {}, u.blockers)) : null
+      );
+    }
+
+    function render(){
+      body.textContent = '';
+      body.append(h('h3', {}, '1. Summary for ' + niceDate(date)));
+      var sum = [], tot = [0,0,0,0,0];
+      ['site','tech'].forEach(function(k){
+        var a = forTeam(k, date);
+        var r = [TEAMS[k].title, a.length, cnt(a,'done'), cnt(a,'partial'), cnt(a,'not'), blk(a)];
+        for(var i = 1; i < 6; i++) tot[i-1] += r[i];
+        sum.push(r);
+      });
+      sum.push(['Total'].concat(tot));
+      body.append(table(['Team','Updates','Completed','Partial','Not Completed','Blockers'], sum, function(i, c){
+        if(i === 4 && c > 0) return 'bad'; if(i === 5 && c > 0) return 'warn'; return '';
+      }));
+
+      body.append(h('h3', {}, '2. By project'));
+      var pr = allProjects().map(function(p){
+        var s = forTeam('site', date, p), t = forTeam('tech', date, p);
+        var openT = tasks.filter(function(x){ return x.project === p && x.status !== 'Done'; }).length;
+        var nd = cnt(s,'not') + cnt(t,'not');
+        var att = (s.length + t.length === 0) ? 'No update yet' : (nd > 0 ? 'Needs attention' : 'On track');
+        return [p, s.length, cnt(s,'not'), t.length, cnt(t,'not'), openT, att];
+      });
+      if(!pr.length) body.append(h('div', {class:'empty'}, 'Projects appear here after you add updates or tasks.'));
+      else body.append(table(['Project','Site Updates','Site Not Done','Tech Updates','Tech Not Done','Open Tasks','Attention'], pr, function(i, c){
+        if((i === 2 || i === 4) && c > 0) return 'bad';
+        if(i === 6) return c === 'Needs attention' ? 'bad' : c === 'No update yet' ? 'warn' : 'good';
+        return '';
+      }));
+
+      body.append(h('h3', {}, '3. Last 7 days'));
+      var days = [];
+      for(var i = 6; i >= 0; i--){
+        var d = addDays(date, -i), s = forTeam('site', d), t = forTeam('tech', d);
+        days.push([niceDate(d), s.length, t.length, cnt(s,'not') + cnt(t,'not'), blk(s) + blk(t)]);
+      }
+      body.append(table(['Date','Site Updates','Tech Updates','Not Completed','Blockers'], days, function(i, c){
+        if(i === 3 && c > 0) return 'bad'; if(i === 4 && c > 0) return 'warn'; return '';
+      }));
+
+      body.append(h('h3', {}, '4. Tasks (open = not Done)'));
+      var tr = [], tt = [0,0,0,0];
+      ['site','tech'].forEach(function(k){
+        var o = tasks.filter(function(x){ return x.team === k && x.status !== 'Done'; });
+        var r = [TEAMS[k].title, o.length,
+          o.filter(function(x){ return x.due && x.due < date; }).length,
+          o.filter(function(x){ return x.priority === 'High'; }).length,
+          o.filter(function(x){ return x.status === 'Blocked'; }).length];
+        for(var j = 1; j < 5; j++) tt[j-1] += r[j];
+        tr.push(r);
+      });
+      tr.push(['Total'].concat(tt));
+      body.append(table(['Team','Open','Overdue','High Priority','Blocked'], tr, function(i, c){
+        if((i === 2 || i === 4) && c > 0) return 'bad'; return '';
+      }));
+
+      body.append(h('h3', {}, '5. Updates on ' + niceDate(date)));
+      var day = records.filter(function(u){ return u.date === date; });
+      day.sort(function(a, b){ return STATUS[a.status].rank - STATUS[b.status].rank; });
+      if(!day.length) body.append(h('div', {class:'empty'}, 'No updates for this day yet.'));
+      day.forEach(function(u){ body.append(updateCard(u)); });
+    }
+    return {el:root, render:render};
+  }
+
+  // ---------- shell ----------
+  var TABS = [
+    {id:'site', icon:'🏗️', label:'Site'},
+    {id:'tech', icon:'📐', label:'Tech'},
+    {id:'tasks', icon:'✅', label:'Tasks'},
+    {id:'dash', icon:'📊', label:'Dashboard'}
+  ];
+  var views = {
+    site:TeamForm(TEAMS.site), tech:TeamForm(TEAMS.tech), tasks:TasksView(), dash:DashboardView()
+  };
+  var nav = document.getElementById('nav'), app = document.getElementById('app'), navBtns = {};
+  TABS.forEach(function(t){
+    var b = h('button', {role:'tab', 'aria-selected':'false'}, h('span', {class:'i'}, t.icon), t.label);
+    b.addEventListener('click', function(){ setTab(t.id); window.scrollTo(0, 0); });
+    navBtns[t.id] = b; nav.append(b);
+    app.append(views[t.id].el);
+  });
+  function setTab(id){
+    TABS.forEach(function(t){
+      views[t.id].el.classList.toggle('hidden', t.id !== id);
+      navBtns[t.id].setAttribute('aria-selected', String(t.id === id));
+    });
+    views[id].render();
+  }
+  syncProjectList();
+  setTab('site');
+})();
+</script>
+</body>
+</html>
